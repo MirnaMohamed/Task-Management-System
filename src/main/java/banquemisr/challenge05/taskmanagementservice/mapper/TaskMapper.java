@@ -8,8 +8,8 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
     TaskResponseDto toTaskResponseDto(Task task);
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdOn", ignore = true)
+//    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "createdOn", ignore = true)
     Task toTask(TaskRequestDto taskDto);
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

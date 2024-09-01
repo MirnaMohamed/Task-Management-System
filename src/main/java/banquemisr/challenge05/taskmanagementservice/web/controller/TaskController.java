@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
-//    @Value("${page.size}")
-//    private int pageSize;
 
     @GetMapping("/{taskId}")
     public ResponseEntity<?> getTask(@PathVariable long taskId) {
