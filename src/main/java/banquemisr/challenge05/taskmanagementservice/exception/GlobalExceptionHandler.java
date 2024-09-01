@@ -1,7 +1,6 @@
 package banquemisr.challenge05.taskmanagementservice.exception;
 
 import banquemisr.challenge05.taskmanagementservice.web.ApiResponse;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,9 +28,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ApiResponse<?> handleInvalidArgument(MethodArgumentNotValidException exception) {
         Map<String, String> map =  new HashMap<>();
-        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            map.put(fieldError.getField(), fieldError.getDefaultMessage());
-        });
+        exception.getBindingResult().getFieldErrors().forEach(fieldError ->
+            map.put(fieldError.getField(), fieldError.getDefaultMessage()));
         return ApiResponse.builder()
                 .message(exception.getTitleMessageCode())
                 .data(map)

@@ -4,11 +4,9 @@ import banquemisr.challenge05.taskmanagementservice.model.enums.Priority;
 import banquemisr.challenge05.taskmanagementservice.model.enums.Status;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Getter
 @Setter
