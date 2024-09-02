@@ -14,6 +14,7 @@ public record TaskResponseDto(
         Status status,
         Priority priority,
         LocalDateTime createdOn,
-        LocalDateTime dueDate
+        LocalDateTime dueDate,
+        Long userId
 ) {
 }

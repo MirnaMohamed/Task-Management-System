@@ -1,14 +1,22 @@
 package banquemisr.challenge05.taskmanagementservice.mapper;
 
-import banquemisr.challenge05.taskmanagementservice.dto.request.UserLoginRequestDto;
 import banquemisr.challenge05.taskmanagementservice.dto.request.UserRegisterRequestDto;
-import banquemisr.challenge05.taskmanagementservice.dto.response.UserLoginResponseDto;
+import banquemisr.challenge05.taskmanagementservice.dto.response.UserInfoDto;
+import banquemisr.challenge05.taskmanagementservice.model.Task;
 import banquemisr.challenge05.taskmanagementservice.model.User;
 import org.mapstruct.*;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-    UserLoginResponseDto usertoUserLoginResponseDto(User user);
+
+    @Mapping(source = "tasks", target = "tasksNum", qualifiedByName = "convertTasksToTasksNum")
+    UserInfoDto toUserInfoResponseDto(User user);
     User registerDtotoUser(UserRegisterRequestDto registerRequestDto);
-    User loginDtotoUser(UserLoginRequestDto loginRequestDto);
+
+    @Named("convertTasksToTasksNum")
+    default int convertTasksToTasksNum(List<Task> taskList){
+        return taskList.size();
+    }
 }

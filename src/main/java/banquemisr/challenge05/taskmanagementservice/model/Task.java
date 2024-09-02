@@ -5,6 +5,7 @@ import banquemisr.challenge05.taskmanagementservice.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Task {
+public class Task implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -29,4 +30,9 @@ public class Task {
     private Priority priority;
     private LocalDateTime createdOn;
     private LocalDateTime dueDate;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }

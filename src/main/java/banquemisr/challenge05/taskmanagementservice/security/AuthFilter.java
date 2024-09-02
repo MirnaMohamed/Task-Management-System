@@ -43,8 +43,19 @@ public class AuthFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+//                if (notAuthorized(token, request)) { // (3)
+//                    // you are logged in, but don't have the proper rights
+//                    response.setStatus(HttpServletResponse.SC_FORBIDDEN); // HTTP 403
+//                    return;
+//                }
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean notAuthorized(String token, HttpServletRequest request){
+        // check if currently authenticated user has the permission/role to access this request's /URI
+        // e.g. /admin needs a ROLE_ADMIN , /callcenter needs ROLE_CALLCENTER, etc.
+        return false;
     }
 }

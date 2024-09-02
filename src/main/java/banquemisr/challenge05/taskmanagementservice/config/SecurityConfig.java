@@ -1,6 +1,7 @@
 package banquemisr.challenge05.taskmanagementservice.config;
 
 import banquemisr.challenge05.taskmanagementservice.security.AuthFilter;
+import banquemisr.challenge05.taskmanagementservice.security.DelegatedAuthEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final AuthFilter authFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final DelegatedAuthEntryPoint delegatedAuthEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -26,7 +28,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(
-                                        "/api/v1/auth/**",
+                                        "/api/v*/auth/**",
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html"
@@ -36,7 +38,8 @@ public class SecurityConfig {
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(
-                        authFilter, UsernamePasswordAuthenticationFilter.class);
+                        authFilter, UsernamePasswordAuthenticationFilter.class)
+                        .exceptionHandling(c -> c.authenticationEntryPoint(delegatedAuthEntryPoint));
         return http.build();
     }
 }

@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.webjars.NotFoundException;
@@ -63,11 +64,19 @@ public class GlobalExceptionHandler {
         Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
         StringBuilder builder = new StringBuilder();
         violations.forEach((violation) ->
-                builder.append(violation.getMessageTemplate()));
+                builder.append(violation.getMessage()).append(" "));
         return ApiResponse.builder()
                 .message("Validation failed: " + builder)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .build();
     }
 
+    @ExceptionHandler( AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<?> handleBadCredentialsException(AuthenticationException exception) {
+        return ApiResponse.builder()
+                .message(exception.getMessage())
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .build();
+    }
 }

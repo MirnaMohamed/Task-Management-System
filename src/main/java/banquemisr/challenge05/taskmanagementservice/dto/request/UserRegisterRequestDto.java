@@ -15,7 +15,7 @@ public record UserRegisterRequestDto (
         @NotBlank
         @Pattern(
                 regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$",
-                message = "Password must meet the criteria.")
+                message = "Password must meet this criteria: Not less than 8 characters with at least one special character and contains uppercase and lowercase characters")
         String password,
         @NotBlank Gender gender
 ) {
