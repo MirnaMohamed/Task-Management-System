@@ -4,6 +4,8 @@ import banquemisr.challenge05.taskmanagementservice.model.enums.Priority;
 import banquemisr.challenge05.taskmanagementservice.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -18,7 +20,7 @@ import java.time.LocalDateTime;
 public class Task implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column(length = 50)
     private String title;
     private String description;

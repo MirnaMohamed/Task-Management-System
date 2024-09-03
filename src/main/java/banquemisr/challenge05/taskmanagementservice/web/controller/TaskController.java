@@ -2,6 +2,7 @@ package banquemisr.challenge05.taskmanagementservice.web.controller;
 
 import banquemisr.challenge05.taskmanagementservice.dto.request.TaskRequestDto;
 import banquemisr.challenge05.taskmanagementservice.dto.response.TaskResponseDto;
+import banquemisr.challenge05.taskmanagementservice.filter.TaskSearchDto;
 import banquemisr.challenge05.taskmanagementservice.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("${api.version}/task")
@@ -34,13 +34,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(taskService.getAllTasks());
     }
 
-    @GetMapping("/admin/{userId}")
-    public ResponseEntity<?> getAllTasksByUser(@PathVariable Optional<Long> userId,
+    @GetMapping("/findByUserId")
+    public ResponseEntity<?> getAllTasksByUser(@RequestParam(defaultValue = "0") long userId,
                                                @RequestParam(defaultValue = "0") int pageNo,
                                                @RequestParam(defaultValue = "5") int pageSize) {
         List<TaskResponseDto> taskList;
-        if(userId.isPresent()) {
-            taskList = taskService.findAllTasksByUser(userId.get(), pageNo, pageSize);
+        if(userId == 0) {
+            taskList = taskService.findAllTasksByUser(pageNo, pageSize);
         }
         else
             taskList = taskService.findAllTasksByUser(pageNo, pageSize);
@@ -66,27 +66,34 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-//    @GetMapping("/priority")
-//    public ResponseEntity<?> filterTasksByPriority(@RequestParam(defaultValue = "0") int pageNumber,
-//                                                 @RequestParam(defaultValue = "5") int pageSize,
-//                                                 @RequestParam Priority priority) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(taskService.filterTasksByPriority(priority, pageNumber, pageSize));
-//    }
-//
-//    @GetMapping("/status")
-//    public ResponseEntity<?> filterTasksByStatus(@RequestParam(defaultValue = "0") int pageNumber,
-//                                                 @RequestParam(defaultValue = "5") int pageSize,
-//                                                 @RequestParam Status status) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(taskService.filterTasksByStatus(status, pageNumber, pageSize));
-//    }
-//
-//    @GetMapping("/title")
-//    public ResponseEntity<?> filterTasksByTitle(@RequestParam(defaultValue = "0") int pageNumber,
-//                                                 @RequestParam(defaultValue = "5") int pageSize,
-//                                                 @RequestParam String title) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(taskService.filterTasksByTitle(title, pageNumber, pageSize));
-//    }
+    @PostMapping("assignTask/{userId}")
+    public ResponseEntity<?> assignTaskToUser(@PathVariable Long userId, @RequestBody TaskRequestDto taskDto) {
+        taskService.assignTaskToUser(userId, taskDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Task assigned to user successfully");
+    }
+
+    @PostMapping("assignTask/{userId}/{taskId}")
+    public ResponseEntity<?> assignTaskToUserByTaskId(@PathVariable Long userId, @PathVariable long taskId) {
+        taskService.assignTaskToUser(userId, taskId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Task assigned to user successfully");
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> getStudentsByFilter(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int pageSize, @RequestBody List<TaskSearchDto> taskFilter)
+    {
+        return ResponseEntity.ok().body(taskService.findBySearchCriteria(page, pageSize, taskFilter));
+        //Do not forget to add try-catch
+    }
+
+        @GetMapping("/title")
+    public ResponseEntity<?> filterTasksByTitle(@RequestParam(defaultValue = "0") int pageNumber,
+                                                 @RequestParam(defaultValue = "5") int pageSize,
+                                                 @RequestParam String title) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(taskService.filterTasksByTitle(title, pageNumber, pageSize));
+    }
 }
+

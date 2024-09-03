@@ -25,13 +25,14 @@ public class TaskWatcher {
         this.taskRepository = taskRepository;
         this.mailSender = mailSender;
     }
-    @Scheduled(cron = "59 * * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     public void sendAlertEmails(){
         List<Task> tasks = taskRepository.findAll();
         tasks.forEach(task ->  {
-            if(checkDueDate(task.getDueDate()) && !task.getStatus().equals(Status.DONE))
+            if(checkDueDate(task.getDueDate()) && !task.getStatus().equals(Status.DONE)){
                 sendMail(task);
-            log.info("Sending alerts for the following task user:{}", task.getUser().getUsername());
+                log.info("Sending alerts for the following task user:{}", task.getUser().getUsername());
+            }
         });
     }
 

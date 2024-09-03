@@ -3,6 +3,8 @@ package banquemisr.challenge05.taskmanagementservice.service.impl;
 import banquemisr.challenge05.taskmanagementservice.dto.request.TaskRequestDto;
 import banquemisr.challenge05.taskmanagementservice.dto.response.TaskResponseDto;
 import banquemisr.challenge05.taskmanagementservice.exception.InvalidDueDateException;
+import banquemisr.challenge05.taskmanagementservice.filter.TaskSearchDto;
+import banquemisr.challenge05.taskmanagementservice.filter.TaskSpecification;
 import banquemisr.challenge05.taskmanagementservice.mapper.TaskMapper;
 import banquemisr.challenge05.taskmanagementservice.model.Task;
 import banquemisr.challenge05.taskmanagementservice.model.User;
@@ -15,6 +17,7 @@ import banquemisr.challenge05.taskmanagementservice.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
         if(taskData.isPresent()) {
             Task task = taskData.get();
             User user = this.getCurrentUser();
-            if(task.getUser().getId() == user.getId()) {
+            if(task.getUser().getId() == user.getId() || user.getRole() == Role.ADMIN) {
                 Task updatedTask = taskMapper.updateTaskFromTaskRequestDto(taskDto, task);
                 taskRepository.save(updatedTask);
             }
@@ -96,6 +99,21 @@ public class TaskServiceImpl implements TaskService {
         Page<Task> taskPage = taskRepository.findByUserOrderByDueDate(user, paging);
         List<Task> tasks = taskPage.getContent();
         return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
+    }
+
+    @Override
+    public List<TaskResponseDto> findBySearchCriteria(int pageNo, int pageSize, List<TaskSearchDto> taskFilter) {
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        User user = this.getCurrentUser();
+        Page<Task> taskList = taskRepository.findAll(TaskSpecification.columnEqual(taskFilter), paging);
+        if(user.getRole() == Role.ADMIN) {
+            List<Task> tasks = taskList.getContent();
+            return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
+        }
+        else {
+            List<Task> tasks = taskList.getContent().stream().filter(task -> task.getUser().getId() == user.getId()).toList();
+            return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
+        }
     }
 
     @Override
@@ -174,43 +192,24 @@ public class TaskServiceImpl implements TaskService {
         else
             throw new BadCredentialsException("You do not have permission to assign this task to a user");
     }
-//    @Override
-//    public List<TaskResponseDto> filterTasksByPriority(Priority priority, int pageNo, int pageSize) {
-//        Pageable paging = PageRequest.of(pageNo, pageSize);
-//        Page<Task> pagedResult = taskRepository.findByPriority(priority, paging);
-//
-//        if(pagedResult.hasContent()) {
-//            List<Task> tasks= pagedResult.getContent();
-//            return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
-//        } else {
-//            return new ArrayList<>();
-//        }
-//    }
-//
-//    public List<TaskResponseDto> filterTasksByStatus(Status status, int pageNo, int pageSize) {
-//        Pageable paging = PageRequest.of(pageNo, pageSize);
-//        Page<Task> pagedResult = taskRepository.findByStatus(status, paging);
-//
-//        if(pagedResult.hasContent()) {
-//            List<Task> tasks= pagedResult.getContent();
-//            return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
-//        } else {
-//            return new ArrayList<>();
-//        }
-//    }
-//
-//    @Override
-//    public List<TaskResponseDto> filterTasksByTitle(String title, int pageNo, int pageSize) {
-//        Pageable paging = PageRequest.of(pageNo, pageSize);
-//        Page<Task> pagedResult = taskRepository.findByTitleContainingIgnoreCase(title, paging);
-//
-//        if(pagedResult.hasContent()) {
-//            List<Task> tasks= pagedResult.getContent();
-//            return tasks.stream().map(taskMapper::toTaskResponseDto).toList();
-//        } else {
-//            return new ArrayList<>();
-//        }
-//    }
+
+    @Override
+    public List<TaskResponseDto> filterTasksByTitle(String title, int pageNo, int pageSize) {
+        User user = this.getCurrentUser();
+        List<TaskResponseDto> taskResponseDtos = new ArrayList<>();
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+        Page<Task> pagedResult;
+
+        if(user.getRole()==Role.ADMIN)
+            pagedResult = taskRepository.findByTitleContainingIgnoreCase(title, paging);
+        else
+            pagedResult = taskRepository.findByTitleContainingIgnoreCaseAndUser(title, user, paging);
+
+        List<Task> tasks= pagedResult.getContent();
+        taskResponseDtos = tasks.stream().map(taskMapper::toTaskResponseDto).toList();
+
+        return taskResponseDtos;
+    }
 
     private void validateTask(Task task) {
         if(task.getStatus() == null)

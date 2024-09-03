@@ -1,6 +1,6 @@
 package banquemisr.challenge05.taskmanagementservice.exception;
 
-import banquemisr.challenge05.taskmanagementservice.web.ApiResponse;
+import banquemisr.challenge05.taskmanagementservice.web.ErrorResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiResponse<?> notFoundExceptionHandler(NotFoundException ex) {
-        return ApiResponse.builder()
+    public ErrorResponse<?> notFoundExceptionHandler(NotFoundException ex) {
+        return ErrorResponse.builder()
                 .message(ex.getMessage())
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .build();
@@ -29,11 +29,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ApiResponse<?> handleInvalidArgument(MethodArgumentNotValidException exception) {
+    public ErrorResponse<?> handleInvalidArgument(MethodArgumentNotValidException exception) {
         Map<String, String> map =  new HashMap<>();
         exception.getBindingResult().getFieldErrors().forEach(fieldError ->
                 map.put(fieldError.getField(), fieldError.getDefaultMessage()));
-        return ApiResponse.builder()
+        return ErrorResponse.builder()
                 .message(exception.getTitleMessageCode())
                 .data(map)
                 .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
@@ -42,8 +42,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ApiResponse<?> handleNotReadableException(HttpMessageNotReadableException exception) {
-        return ApiResponse.builder()
+    public ErrorResponse<?> handleNotReadableException(HttpMessageNotReadableException exception) {
+        return ErrorResponse.builder()
                 .message(exception.getMessage())
                 .statusCode(HttpStatus.UNPROCESSABLE_ENTITY.value())
                 .build();
@@ -51,8 +51,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {InvalidDueDateException.class, UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiResponse<?> handleInvalidDueDateException(RuntimeException exception) {
-        return ApiResponse.builder()
+    public ErrorResponse<?> handleInvalidDueDateException(RuntimeException exception) {
+        return ErrorResponse.builder()
                 .message(exception.getMessage())
                 .statusCode(HttpStatus.CONFLICT.value())
                 .build();
@@ -60,12 +60,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiResponse<?> handleConstraintViolationException(ConstraintViolationException exception) {
+    public ErrorResponse<?> handleConstraintViolationException(ConstraintViolationException exception) {
         Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
         StringBuilder builder = new StringBuilder();
         violations.forEach((violation) ->
                 builder.append(violation.getMessage()).append(" "));
-        return ApiResponse.builder()
+        return ErrorResponse.builder()
                 .message("Validation failed: " + builder)
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .build();
@@ -73,8 +73,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler( AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ApiResponse<?> handleBadCredentialsException(AuthenticationException exception) {
-        return ApiResponse.builder()
+    public ErrorResponse<?> handleBadCredentialsException(AuthenticationException exception) {
+        return ErrorResponse.builder()
                 .message(exception.getMessage())
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .build();

@@ -23,7 +23,7 @@ public class SwaggerConfig {
                         )
                 )
                 .info(new Info()
-                        .title("الخيـــــــــــــــر REST API")
+                        .title("Task Management Service REST API")
                         .version("1.0")
                 );
     }

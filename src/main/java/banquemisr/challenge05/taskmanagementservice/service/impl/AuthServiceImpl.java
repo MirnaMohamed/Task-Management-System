@@ -10,7 +10,6 @@ import banquemisr.challenge05.taskmanagementservice.repository.UserRepository;
 import banquemisr.challenge05.taskmanagementservice.security.JwtService;
 import banquemisr.challenge05.taskmanagementservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import org.webjars.NotFoundException;
 public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final JavaMailSender mailSender;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -51,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(UserLoginRequestDto loginRequest) {
         User savedUser = findUserByEmail(loginRequest.email());
-        String savedUserPassword = passwordEncoder.encode(savedUser.getPassword());
+        String savedUserPassword = savedUser.getPassword();
         checkPasswordsMatch(loginRequest.password(), savedUserPassword);
         String jwtToken = jwtService.generateToken(savedUser);
         savedUser.setAccessToken(jwtToken);
