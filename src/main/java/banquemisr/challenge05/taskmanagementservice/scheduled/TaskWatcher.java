@@ -37,8 +37,8 @@ public class TaskWatcher {
     }
 
     private boolean checkDueDate(LocalDateTime dueDate){
-        if(!dueDate.minusHours(1).isAfter(LocalDateTime.now())){
-            return true; //The due date is in less than one hour
+        if(!dueDate.minusHours(2).isAfter(LocalDateTime.now())){
+            return true; //The due date is in less than two hours
         }
         else
             return false;
@@ -50,7 +50,7 @@ public class TaskWatcher {
         message.setTo(task.getUser().getUsername());
         message.setSubject("Task Deadline is coming up.");
         message.setText("Try to finish Task number: " + task.getId() + " with title: " + task.getTitle() +
-                " as it appears that it's not finished yet and it's dueDate in an hour so hurry up!! ");
+                " as it appears that it's not finished yet and its dueDue is in two hours so hurry up!! ");
 
         mailSender.send(message);
     }
